@@ -23,7 +23,8 @@ install postgress db locally, set user and password.
 
 Run init scipt to create all necessary tables - [001_schema.sql](docker/postgres/init/001_schema.sql)BorrowABook/src/main/resources/data.sql
 
-
+# Screenshot of the app:
+![img.png](img.png)
 
 # BorrowABook Docker Setup
 
