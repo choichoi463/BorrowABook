@@ -21,7 +21,7 @@ start the backend:
 
 install postgress db locally, set user and password.
 
-Run init scipt to create all necessary tables - BorrowABook/src/main/resources/data.sql
+Run init scipt to create all necessary tables - [001_schema.sql](docker/postgres/init/001_schema.sql)BorrowABook/src/main/resources/data.sql
 
 
 
