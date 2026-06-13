@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authAPI, getApiErrorMessage } from '../services/api';
+import { useTranslation } from 'react-i18next';
 import './AuthForm.css';
 
 const Login = () => {
@@ -13,6 +14,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { login: setSession } = useAuth();
+  const { t } = useTranslation();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,7 +35,7 @@ const Login = () => {
       setSession(response.data, pseudoToken);
       navigate('/books');
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Login failed. Please try again.'));
+      setError(getApiErrorMessage(err, t('login.loginFailed')));
     } finally {
       setIsLoading(false);
     }
@@ -43,11 +45,11 @@ const Login = () => {
   return (
     <div className="auth-container">
       <div className="auth-form">
-        <h1>Login</h1>
+        <h1>{t('login.title')}</h1>
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="login">Login</label>
+            <label htmlFor="login">{t('login.loginLabel')}</label>
             <input
               type="text"
               id="login"
@@ -55,11 +57,11 @@ const Login = () => {
               value={formData.login}
               onChange={handleChange}
               required
-              placeholder="Enter your login"
+              placeholder={t('login.loginPlaceholder')}
             />
           </div>
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">{t('login.passwordLabel')}</label>
             <input
               type="password"
               id="password"
@@ -67,18 +69,18 @@ const Login = () => {
               value={formData.password}
               onChange={handleChange}
               required
-              placeholder="Enter your password"
+              placeholder={t('login.passwordPlaceholder')}
             />
           </div>
           <button type="submit" className="btn btn-submit" disabled={isLoading}>
-            {isLoading ? 'Logging in...' : 'Login'}
+            {isLoading ? t('login.submitting') : t('login.submit')}
           </button>
         </form>
         <p className="form-footer">
-          Don't have an account? <Link to="/register">Register here</Link>
+          {t('login.noAccount')} <Link to="/register">{t('login.registerLink')}</Link>
         </p>
         <p className="form-footer">
-          <Link to="/forgot-password">Forgot your password?</Link>
+          <Link to="/forgot-password">{t('login.forgotPassword')}</Link>
         </p>
       </div>
     </div>

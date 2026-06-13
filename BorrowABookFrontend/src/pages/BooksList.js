@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { bookAPI, getApiErrorMessage } from '../services/api';
+import { useTranslation } from 'react-i18next';
 import './BooksList.css';
 
 const BooksList = () => {
   const { user, isAuthenticated, loading: isAuthLoading } = useAuth();
+  const { t, i18n } = useTranslation();
   const [books, setBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,7 +21,7 @@ const BooksList = () => {
       return '-';
     }
     const date = new Date(value);
-    return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString();
+    return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString(i18n.language);
   };
 
   const getOwnerFullName = (book) => [book.ownerName, book.ownerSurname].filter(Boolean).join(' ') || '-';
@@ -46,14 +48,14 @@ const BooksList = () => {
         setBooks(response.data);
         setFilteredBooks(response.data);
       } catch (err) {
-        setError(getApiErrorMessage(err, 'Failed to load books.'));
+        setError(getApiErrorMessage(err, t('booksList.failedLoad')));
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchBooks();
-  }, [isAuthenticated, isAuthLoading]);
+  }, [isAuthenticated, isAuthLoading, t]);
 
   useEffect(() => {
     let filtered = books;
@@ -74,20 +76,22 @@ const BooksList = () => {
   }, [searchTerm, books]);
 
   const getStatusLabel = (book) =>
-    getBorrowerFullName(book) ? `Borrowed by ${getBorrowerFullName(book)}` : 'Available';
+    getBorrowerFullName(book)
+      ? t('booksList.borrowedBy', { name: getBorrowerFullName(book) })
+      : t('booksList.available');
 
   const isAdmin = user?.userRole === 'admin' || user?.userRole === 'localAdmin';
 
   const renderStatusContent = (book) => {
     const borrowerFullName = getBorrowerFullName(book);
     if (!borrowerFullName) {
-      return 'Available';
+      return t('booksList.available');
     }
 
     if (isAdmin && book.borrowedByUserId != null) {
       return (
         <>
-          Borrowed by{' '}
+          {t('booksList.borrowedByPrefix')}{' '}
           <Link to={`/admin/users/${book.borrowedByUserId}`} className="borrower-link">
             {borrowerFullName}
           </Link>
@@ -95,7 +99,7 @@ const BooksList = () => {
       );
     }
 
-    return `Borrowed by ${borrowerFullName}`;
+    return t('booksList.borrowedBy', { name: borrowerFullName });
   };
 
   const handleSort = (key) => {
@@ -160,16 +164,17 @@ const BooksList = () => {
   };
 
   if (isAuthLoading || isLoading) {
-    return <div className="loading">Loading books...</div>;
+    return <div className="loading">{t('booksList.loading')}</div>;
   }
 
   if (!isAuthenticated) {
     return (
       <div className="books-container">
-        <h1>Browse Books</h1>
+        <h1>{t('booksList.pageTitle')}</h1>
         <div className="no-results">
           <p>
-            Please <Link to="/login">log in</Link> to browse books.
+            {t('booksList.loginRequiredPrefix')} <Link to="/login">{t('booksList.loginRequiredLink')}</Link>{' '}
+            {t('booksList.loginRequiredSuffix')}
           </p>
         </div>
       </div>
@@ -182,13 +187,13 @@ const BooksList = () => {
 
   return (
     <div className="books-container">
-      <h1>Browse Books</h1>
+      <h1>{t('booksList.pageTitle')}</h1>
 
       <div className="filters">
         <div className="search-bar">
           <input
             type="text"
-            placeholder="Search books, owners, or authors..."
+            placeholder={t('booksList.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -200,7 +205,7 @@ const BooksList = () => {
             onClick={() => setViewMode('grid')}
             aria-pressed={viewMode === 'grid'}
           >
-            Grid
+            {t('booksList.grid')}
           </button>
           <button
             type="button"
@@ -208,18 +213,20 @@ const BooksList = () => {
             onClick={() => setViewMode('table')}
             aria-pressed={viewMode === 'table'}
           >
-            Table
+            {t('booksList.table')}
           </button>
         </div>
       </div>
 
       <div className="books-count">
-        Showing {displayedBooks.length} book{displayedBooks.length !== 1 ? 's' : ''}
+        {displayedBooks.length === 1
+          ? t('booksList.showing', { count: displayedBooks.length })
+          : t('booksList.showingPlural', { count: displayedBooks.length })}
       </div>
 
       {displayedBooks.length === 0 ? (
         <div className="no-results">
-          <p>No books found matching your criteria.</p>
+          <p>{t('booksList.noResults')}</p>
         </div>
       ) : viewMode === 'grid' ? (
         <div className="books-grid">
@@ -228,18 +235,18 @@ const BooksList = () => {
               <div className="book-cover">📚</div>
               <div className="book-info">
                 <h3>{book.title}</h3>
-                <p className="author">Author: {book.author || '-'}</p>
-                <p className="author">Genre: {book.genre || '-'}</p>
-                <p className="author">Language: {book.language || '-'}</p>
-                <p className="author">Owner: {getOwnerFullName(book)}</p>
+                <p className="author">{t('booksList.author')}: {book.author || '-'}</p>
+                <p className="author">{t('booksList.genre')}: {book.genre || '-'}</p>
+                <p className="author">{t('booksList.language')}: {book.language || '-'}</p>
+                <p className="author">{t('booksList.owner')}: {getOwnerFullName(book)}</p>
                 <div className="book-footer">
-                  <span className="rating">Added: {formatDate(book.dateAdded)}</span>
+                  <span className="rating">{t('booksList.added')}: {formatDate(book.dateAdded)}</span>
                   <span className={`availability ${book.borrowedByUserName ? 'unavailable' : 'available'}`}>
                     {renderStatusContent(book)}
                   </span>
                 </div>
                 <Link to={`/books/${book.id}`} className="btn btn-view">
-                  View Details
+                  {t('booksList.viewDetails')}
                 </Link>
               </div>
             </div>
@@ -252,41 +259,41 @@ const BooksList = () => {
               <tr>
                 <th aria-sort={getAriaSort('title')}>
                   <button type="button" className="sort-btn" onClick={() => handleSort('title')}>
-                    Title <span className="sort-indicator">{getSortIndicator('title')}</span>
+                    {t('booksList.titleColumn')} <span className="sort-indicator">{getSortIndicator('title')}</span>
                   </button>
                 </th>
 
                 <th aria-sort={getAriaSort('author')}>
                   <button type="button" className="sort-btn" onClick={() => handleSort('author')}>
-                    Author <span className="sort-indicator">{getSortIndicator('author')}</span>
+                    {t('booksList.author')} <span className="sort-indicator">{getSortIndicator('author')}</span>
                   </button>
                 </th>
                 <th aria-sort={getAriaSort('ownerName')}>
                   <button type="button" className="sort-btn" onClick={() => handleSort('ownerName')}>
-                    Owner <span className="sort-indicator">{getSortIndicator('ownerName')}</span>
+                    {t('booksList.owner')} <span className="sort-indicator">{getSortIndicator('ownerName')}</span>
                   </button>
                 </th>
                 <th aria-sort={getAriaSort('genre')}>
                   <button type="button" className="sort-btn" onClick={() => handleSort('genre')}>
-                    Genre <span className="sort-indicator">{getSortIndicator('genre')}</span>
+                    {t('booksList.genre')} <span className="sort-indicator">{getSortIndicator('genre')}</span>
                   </button>
                 </th>
                 <th aria-sort={getAriaSort('language')}>
                   <button type="button" className="sort-btn" onClick={() => handleSort('language')}>
-                    Language <span className="sort-indicator">{getSortIndicator('language')}</span>
+                    {t('booksList.language')} <span className="sort-indicator">{getSortIndicator('language')}</span>
                   </button>
                 </th>
                 <th aria-sort={getAriaSort('dateAdded')}>
                   <button type="button" className="sort-btn" onClick={() => handleSort('dateAdded')}>
-                    Added <span className="sort-indicator">{getSortIndicator('dateAdded')}</span>
+                    {t('booksList.added')} <span className="sort-indicator">{getSortIndicator('dateAdded')}</span>
                   </button>
                 </th>
                 <th aria-sort={getAriaSort('status')}>
                   <button type="button" className="sort-btn" onClick={() => handleSort('status')}>
-                    Status <span className="sort-indicator">{getSortIndicator('status')}</span>
+                    {t('booksList.status')} <span className="sort-indicator">{getSortIndicator('status')}</span>
                   </button>
                 </th>
-                <th>Action</th>
+                <th>{t('booksList.action')}</th>
               </tr>
             </thead>
             <tbody>
@@ -305,7 +312,7 @@ const BooksList = () => {
                   </td>
                   <td>
                     <Link to={`/books/${book.id}`} className="btn btn-view btn-view-compact">
-                      View
+                      {t('booksList.view')}
                     </Link>
                   </td>
                 </tr>

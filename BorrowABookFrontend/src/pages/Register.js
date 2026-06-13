@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authAPI, getApiErrorMessage } from '../services/api';
+import { useTranslation } from 'react-i18next';
 import './AuthForm.css';
 
 const Register = () => {
@@ -18,6 +19,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [pendingActivation, setPendingActivation] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,7 +34,7 @@ const Register = () => {
     setError('');
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('register.passwordMismatch'));
       return;
     }
 
@@ -55,7 +57,7 @@ const Register = () => {
         navigate('/login');
       }
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Registration failed. Please try again.'));
+      setError(getApiErrorMessage(err, t('register.registrationFailed')));
     } finally {
       setIsLoading(false);
     }
@@ -64,19 +66,19 @@ const Register = () => {
   return (
     <div className="auth-container">
       <div className="auth-form">
-        <h1>Register</h1>
+        <h1>{t('register.title')}</h1>
         {pendingActivation ? (
           <div style={{ textAlign: 'center', padding: '20px 0' }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
-            <h2 style={{ color: '#27ae60', marginBottom: '12px' }}>Account Created!</h2>
+            <h2 style={{ color: '#27ae60', marginBottom: '12px' }}>{t('register.created')}</h2>
             <p style={{ color: '#555', marginBottom: '8px', lineHeight: '1.6' }}>
-              Your account has been created successfully, but it requires admin approval before you can log in.
+              {t('register.pendingActivationTitle')}
             </p>
             <p style={{ color: '#888', fontSize: '14px', marginBottom: '24px', lineHeight: '1.6' }}>
-              Please contact your administrator to activate your account. Once activated, you'll be able to log in with your credentials.
+              {t('register.pendingActivationBody')}
             </p>
             <Link to="/login" className="btn btn-submit" style={{ display: 'inline-block', textDecoration: 'none', textAlign: 'center' }}>
-              Go to Login
+              {t('register.goToLogin')}
             </Link>
           </div>
         ) : (
@@ -85,7 +87,7 @@ const Register = () => {
             <form onSubmit={handleSubmit}>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="name">First Name</label>
+              <label htmlFor="name">{t('register.firstName')}</label>
               <input
                 type="text"
                 id="name"
@@ -93,11 +95,11 @@ const Register = () => {
                 value={formData.name}
                 onChange={handleChange}
                 required
-                placeholder="First name"
+                placeholder={t('register.firstNamePlaceholder')}
               />
             </div>
             <div className="form-group">
-              <label htmlFor="surname">Last Name</label>
+              <label htmlFor="surname">{t('register.lastName')}</label>
               <input
                 type="text"
                 id="surname"
@@ -105,12 +107,12 @@ const Register = () => {
                 value={formData.surname}
                 onChange={handleChange}
                 required
-                placeholder="Last name"
+                placeholder={t('register.lastNamePlaceholder')}
               />
             </div>
           </div>
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t('register.email')}</label>
             <input
               type="email"
               id="email"
@@ -118,22 +120,22 @@ const Register = () => {
               value={formData.email}
               onChange={handleChange}
               required
-              placeholder="Enter your email"
+              placeholder={t('register.emailPlaceholder')}
             />
           </div>
           <div className="form-group">
-            <label htmlFor="contact">Contact (optional)</label>
+            <label htmlFor="contact">{t('register.contact')}</label>
             <input
               type="text"
               id="contact"
               name="contact"
               value={formData.contact}
               onChange={handleChange}
-              placeholder="Phone or contact"
+              placeholder={t('register.contactPlaceholder')}
             />
           </div>
           <div className="form-group">
-            <label htmlFor="login">Login</label>
+            <label htmlFor="login">{t('register.login')}</label>
             <input
               type="text"
               id="login"
@@ -142,24 +144,24 @@ const Register = () => {
               onChange={handleChange}
               required
               minLength={3}
-              placeholder="Choose a login"
+              placeholder={t('register.loginPlaceholder')}
             />
           </div>
           <div className="form-group">
-            <label htmlFor="userRole">Role</label>
+            <label htmlFor="userRole">{t('register.role')}</label>
             <select
               id="userRole"
               name="userRole"
               value={formData.userRole}
               onChange={handleChange}
             >
-              <option value="bookOwner">bookOwner</option>
-              <option value="localAdmin">localAdmin</option>
-              <option value="admin">admin</option>
+              <option value="bookOwner">{t('register.bookOwner')}</option>
+              <option value="localAdmin">{t('register.localAdmin')}</option>
+              <option value="admin">{t('register.admin')}</option>
             </select>
           </div>
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">{t('register.password')}</label>
             <input
               type="password"
               id="password"
@@ -168,11 +170,11 @@ const Register = () => {
               onChange={handleChange}
               required
               minLength={8}
-              placeholder="Enter your password"
+              placeholder={t('register.passwordPlaceholder')}
             />
           </div>
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
+            <label htmlFor="confirmPassword">{t('register.confirmPassword')}</label>
             <input
               type="password"
               id="confirmPassword"
@@ -180,15 +182,15 @@ const Register = () => {
               value={formData.confirmPassword}
               onChange={handleChange}
               required
-              placeholder="Confirm your password"
+              placeholder={t('register.confirmPasswordPlaceholder')}
             />
           </div>
           <button type="submit" className="btn btn-submit" disabled={isLoading}>
-            {isLoading ? 'Registering...' : 'Register'}
+            {isLoading ? t('register.submitting') : t('register.submit')}
           </button>
         </form>
         <p className="form-footer">
-          Already have an account? <Link to="/login">Login here</Link>
+          {t('register.noAccount')} <Link to="/login">{t('register.loginLink')}</Link>
         </p>
           </>
         )}

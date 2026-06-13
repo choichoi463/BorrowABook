@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { bookAPI, userAPI, getApiErrorMessage } from '../services/api';
+import { useTranslation } from 'react-i18next';
 import './UserProfile.css';
 
 const UserProfile = () => {
   const { user: authUser, isAuthenticated, updateUser } = useAuth();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [user, setUser] = useState({
     firstName: authUser?.name || '',
     lastName: authUser?.surname || '',
@@ -46,6 +48,12 @@ const UserProfile = () => {
     setEditData(mappedUser);
   }, [authUser]);
 
+  const formatDate = (value) => {
+    if (!value) return '-';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString(i18n.language);
+  };
+
   useEffect(() => {
     const loadOwnedBooks = async () => {
       if (!isAuthenticated || !authUser?.id) {
@@ -62,14 +70,14 @@ const UserProfile = () => {
         );
         setOwnedBooks(filtered);
       } catch (err) {
-        setError(getApiErrorMessage(err, 'Failed to load owned books.'));
+        setError(getApiErrorMessage(err, t('userProfile.failedLoad')));
       } finally {
         setIsLoadingOwnedBooks(false);
       }
     };
 
     loadOwnedBooks();
-  }, [authUser, isAuthenticated]);
+  }, [authUser, isAuthenticated, t]);
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
@@ -78,7 +86,7 @@ const UserProfile = () => {
 
   const handleSaveChanges = async () => {
     if (!authUser?.id) {
-      alert('Unable to update profile: missing user identifier.');
+      alert(t('userProfile.missingIdentifier'));
       return;
     }
 
@@ -107,7 +115,7 @@ const UserProfile = () => {
       updateUser(updatedUser);
       setIsEditing(false);
     } catch (err) {
-      alert(getApiErrorMessage(err, 'Failed to update profile.'));
+      alert(getApiErrorMessage(err, t('userProfile.failedUpdateProfile')));
     } finally {
       setIsSavingProfile(false);
     }
@@ -130,7 +138,7 @@ const UserProfile = () => {
   const handleAddBook = async (e) => {
     e.preventDefault();
     if (!authUser?.id) {
-      setError('Cannot add book: you must be logged in.');
+      setError(t('userProfile.cannotAddBook'));
       return;
     }
 
@@ -148,7 +156,7 @@ const UserProfile = () => {
       setBookForm({ author: '', title: '', genre: '', language: '', description: '' });
       await refreshOwnedBooks();
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Failed to add book.'));
+      setError(getApiErrorMessage(err, t('userProfile.failedAdd')));
     } finally {
       setIsAddingBook(false);
     }
@@ -157,18 +165,18 @@ const UserProfile = () => {
   const handleReturnBook = async (book) => {
     const returnedBy = authUser.login || authUser.name;
     if (!returnedBy) {
-      alert('Please login first.');
+      alert(t('userProfile.pleaseLogin'));
       return;
     }
 
-    const confirmed = window.confirm(`Confirm return: Mark "${book.title}" as returned?`);
+    const confirmed = window.confirm(t('userProfile.returnConfirm', { title: book.title }));
     if (!confirmed) return;
 
     try {
       await bookAPI.return(book.id, returnedBy);
       await refreshOwnedBooks();
     } catch (err) {
-      alert(getApiErrorMessage(err, 'Failed to return book.'));
+      alert(getApiErrorMessage(err, t('userProfile.failedReturn')));
     }
   };
 
@@ -178,11 +186,11 @@ const UserProfile = () => {
     const isAdmin = authUser.userRole === 'admin' || authUser.userRole === 'localAdmin';
 
     if (!isOwner && !isAdmin) {
-      alert('You do not have permission to deactivate this book.');
+      alert(t('userProfile.noPermission'));
       return;
     }
 
-    const confirmed = window.confirm(`Are you sure you want to deactivate "${book.title}"?`);
+    const confirmed = window.confirm(t('userProfile.deactivateConfirm', { title: book.title }));
     if (!confirmed) return;
 
     try {
@@ -194,7 +202,7 @@ const UserProfile = () => {
       );
       await refreshOwnedBooks();
     } catch (err) {
-      alert(getApiErrorMessage(err, 'Failed to deactivate book.'));
+      alert(getApiErrorMessage(err, t('userProfile.failedDeactivate')));
     }
   };
 
@@ -204,11 +212,11 @@ const UserProfile = () => {
     const isAdmin = authUser.userRole === 'admin' || authUser.userRole === 'localAdmin';
 
     if (!isOwner && !isAdmin) {
-      alert('You do not have permission to activate this book.');
+      alert(t('userProfile.noPermission'));
       return;
     }
 
-    const confirmed = window.confirm(`Are you sure you want to activate "${book.title}"?`);
+    const confirmed = window.confirm(t('userProfile.activateConfirm', { title: book.title }));
     if (!confirmed) return;
 
     try {
@@ -220,17 +228,17 @@ const UserProfile = () => {
       );
       await refreshOwnedBooks();
     } catch (err) {
-      alert(getApiErrorMessage(err, 'Failed to activate book.'));
+      alert(getApiErrorMessage(err, t('userProfile.failedActivate')));
     }
   };
 
   if (!isAuthenticated || !authUser) {
     return (
       <div className="profile-container">
-        <h1>My Profile</h1>
+        <h1>{t('userProfile.title')}</h1>
         <div className="section">
           <p className="empty-message">
-            Please <Link to="/login">log in</Link> to manage your books and profile details.
+            {t('userProfile.loginRequiredPrefix')} <Link to="/login">{t('userProfile.loginRequiredLink')}</Link> {t('userProfile.loginRequiredSuffix')}
           </p>
         </div>
       </div>
@@ -239,69 +247,69 @@ const UserProfile = () => {
 
   return (
     <div className="profile-container">
-      <h1>My Profile</h1>
+      <h1>{t('userProfile.title')}</h1>
 
       <div className="profile-layout">
         <div className="profile-card">
-          <h2>Personal Information</h2>
+          <h2>{t('userProfile.personalInformation')}</h2>
           {!isEditing ? (
             <div className="profile-info">
               <div className="info-row">
-                <span className="label">First Name:</span>
+                <span className="label">{t('userProfile.firstName')}:</span>
                 <span className="value">{user.firstName}</span>
               </div>
               <div className="info-row">
-                <span className="label">Last Name:</span>
+                <span className="label">{t('userProfile.lastName')}:</span>
                 <span className="value">{user.lastName}</span>
               </div>
               <div className="info-row">
-                <span className="label">Email:</span>
+                <span className="label">{t('userProfile.email')}:</span>
                 <span className="value">{user.email}</span>
               </div>
               <div className="info-row">
-                <span className="label">Contact:</span>
+                <span className="label">{t('userProfile.contact')}:</span>
                 <span className="value">{user.contact || '-'}</span>
               </div>
               <div className="info-row">
-                <span className="label">Username (login):</span>
+                <span className="label">{t('userProfile.username')}:</span>
                 <span className="value">{user.login || '-'}</span>
               </div>
               <div className="info-row">
-                <span className="label">Member Since:</span>
-                <span className="value">{new Date(user.memberSince).toLocaleDateString()}</span>
+                <span className="label">{t('userProfile.memberSince')}:</span>
+                <span className="value">{formatDate(user.memberSince)}</span>
               </div>
               <button className="btn btn-edit" onClick={() => setIsEditing(true)}>
-                Edit Profile
+                {t('userProfile.editProfile')}
               </button>
             </div>
           ) : (
             <div className="profile-edit-form">
               <div className="form-group">
-                <label htmlFor="firstName">First Name</label>
+                <label htmlFor="firstName">{t('userProfile.firstName')}</label>
                 <input type="text" id="firstName" name="firstName" value={editData.firstName} onChange={handleEditChange} />
               </div>
               <div className="form-group">
-                <label htmlFor="lastName">Last Name</label>
+                <label htmlFor="lastName">{t('userProfile.lastName')}</label>
                 <input type="text" id="lastName" name="lastName" value={editData.lastName} onChange={handleEditChange} />
               </div>
               <div className="form-group">
-                <label htmlFor="email">Email</label>
+                <label htmlFor="email">{t('userProfile.email')}</label>
                 <input type="email" id="email" name="email" value={editData.email} onChange={handleEditChange} />
               </div>
               <div className="form-group">
-                <label htmlFor="contact">Contact Number</label>
+                <label htmlFor="contact">{t('userProfile.contact')}</label>
                 <input type="text" id="contact" name="contact" value={editData.contact} onChange={handleEditChange} />
               </div>
               <div className="form-group">
-                <label htmlFor="login">Username (login)</label>
+                <label htmlFor="login">{t('userProfile.username')}</label>
                 <input type="text" id="login" name="login" value={editData.login} disabled />
               </div>
               <div className="edit-buttons">
                 <button className="btn btn-save" onClick={handleSaveChanges} disabled={isSavingProfile}>
-                  {isSavingProfile ? 'Saving...' : 'Save Changes'}
+                  {isSavingProfile ? t('userProfile.saving') : t('userProfile.saveChanges')}
                 </button>
                 <button className="btn btn-cancel" onClick={() => { setIsEditing(false); setEditData(user); }}>
-                  Cancel
+                  {t('userProfile.cancel')}
                 </button>
               </div>
             </div>
@@ -313,7 +321,7 @@ const UserProfile = () => {
             <div className="stat-icon">📚</div>
             <div className="stat-content">
               <h3>{ownedBooks.length}</h3>
-              <p>Books Owned</p>
+              <p>{t('userProfile.booksOwned')}</p>
             </div>
           </div>
         </div>
@@ -321,7 +329,7 @@ const UserProfile = () => {
 
       <div className="section">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
-          <h2 style={{ margin: 0 }}>Add New Book</h2>
+          <h2 style={{ margin: 0 }}>{t('userProfile.addNewBook')}</h2>
           <button
             type="button"
             className="btn btn-edit"
@@ -329,13 +337,13 @@ const UserProfile = () => {
             aria-controls="add-book-form"
             onClick={() => setIsAddBookExpanded((prev) => !prev)}
           >
-            {isAddBookExpanded ? 'Hide Form' : 'Show Form'}
+            {isAddBookExpanded ? t('userProfile.hideForm') : t('userProfile.showForm')}
           </button>
         </div>
         {isAddBookExpanded && (
         <form id="add-book-form" className="profile-edit-form" onSubmit={handleAddBook}>
           <div className="form-group">
-            <label htmlFor="author">Author</label>
+            <label htmlFor="author">{t('userProfile.author')}</label>
             <input
               type="text"
               id="author"
@@ -347,7 +355,7 @@ const UserProfile = () => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="title">Title</label>
+            <label htmlFor="title">{t('userProfile.title')}</label>
             <input
               type="text"
               id="title"
@@ -359,7 +367,7 @@ const UserProfile = () => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="genre">Genre</label>
+            <label htmlFor="genre">{t('userProfile.genre')}</label>
             <input
               type="text"
               id="genre"
@@ -370,7 +378,7 @@ const UserProfile = () => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="language">Language</label>
+            <label htmlFor="language">{t('userProfile.language')}</label>
             <input
               type="text"
               id="language"
@@ -381,7 +389,7 @@ const UserProfile = () => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="description">Description</label>
+            <label htmlFor="description">{t('userProfile.description')}</label>
             <input
               type="text"
               id="description"
@@ -394,7 +402,7 @@ const UserProfile = () => {
           </div>
           <div className="edit-buttons">
             <button type="submit" className="btn btn-save" disabled={isAddingBook}>
-              {isAddingBook ? 'Adding...' : 'Add Book'}
+              {isAddingBook ? t('userProfile.adding') : t('userProfile.addBook')}
             </button>
           </div>
         </form>
@@ -402,27 +410,27 @@ const UserProfile = () => {
       </div>
 
       <div className="section">
-        <h2>My Owned Books</h2>
-        {isLoadingOwnedBooks && <p>Loading owned books...</p>}
+        <h2>{t('userProfile.booksOwned')}</h2>
+        {isLoadingOwnedBooks && <p>{t('userProfile.loadingOwnedBooks')}</p>}
         {error && <p className="empty-message">{error}</p>}
         {ownedBooks.length === 0 && !isLoadingOwnedBooks ? (
-          <p className="empty-message">You do not own any books yet.</p>
+          <p className="empty-message">{t('userProfile.noBooks')}</p>
         ) : (
           <div className="books-table-container">
             <table className="books-table">
               <thead>
                 <tr>
-                  <th>Title</th>
-                  <th>Author</th>
-                  <th>Genre</th>
-                  <th>Language</th>
-                  <th>Borrowed By</th>
-                  <th>Borrower Contact</th>
-                  <th>Borrowed Date</th>
-                  <th>Return Date</th>
-                  <th>Edit</th>
-                  <th>Return</th>
-                  <th>Deactivate</th>
+                  <th>{t('userProfile.title')}</th>
+                  <th>{t('userProfile.author')}</th>
+                  <th>{t('userProfile.genre')}</th>
+                  <th>{t('userProfile.language')}</th>
+                  <th>{t('userProfile.borrowedBy')}</th>
+                  <th>{t('userProfile.borrowerContact')}</th>
+                  <th>{t('userProfile.borrowedDate')}</th>
+                  <th>{t('userProfile.returnDate')}</th>
+                  <th>{t('userProfile.edit')}</th>
+                  <th>{t('userProfile.return')}</th>
+                  <th>{t('userProfile.deactivate')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -435,6 +443,9 @@ const UserProfile = () => {
                     ? book.borrowedByUserContact
                     : '-';
                   const isInactive = book.isInactive === true;
+                  const ownerAllowed = Number(book.ownerId) === Number(authUser.id) ||
+                    authUser.userRole === 'admin' ||
+                    authUser.userRole === 'localAdmin';
 
                   return (
                     <tr key={book.id} className={isInactive ? 'inactive-row' : ''}>
@@ -444,8 +455,8 @@ const UserProfile = () => {
                       <td>{book.language || '-'}</td>
                       <td>{borrowerFullName}</td>
                       <td>{borrowerContact}</td>
-                      <td>{book.dateBorrowed ? new Date(book.dateBorrowed).toLocaleDateString() : '-'}</td>
-                      <td>{book.dateReturned ? new Date(book.dateReturned).toLocaleDateString() : '-'}</td>
+                      <td>{book.dateBorrowed ? formatDate(book.dateBorrowed) : '-'}</td>
+                      <td>{book.dateReturned ? formatDate(book.dateReturned) : '-'}</td>
                       <td>
                         <button
                           type="button"
@@ -453,37 +464,35 @@ const UserProfile = () => {
                           onClick={() => navigate(`/books/${book.id}/edit`)}
                           disabled={isInactive}
                         >
-                          Edit
+                          {t('userProfile.edit')}
                         </button>
                       </td>
                       <td>
                         {hasActiveBorrower && !isInactive ? (
                           <button className="btn btn-return" onClick={() => handleReturnBook(book)}>
-                            Mark Returned
+                            {t('userProfile.return')}
                           </button>
                         ) : (
                           <span>-</span>
                         )}
                       </td>
                       <td>
-                        {(Number(book.ownerId) === Number(authUser.id) ||
-                          authUser.userRole === 'admin' ||
-                          authUser.userRole === 'localAdmin') ? (
+                        {ownerAllowed ? (
                           isInactive ? (
                             <button
                               className="btn btn-activate"
                               onClick={() => handleActivateBook(book)}
-                              title="Activate this book"
+                              title={t('userProfile.activateTitle')}
                             >
-                              Activate
+                              {t('userProfile.activate')}
                             </button>
                           ) : (
                             <button
                               className="btn btn-deactivate"
                               onClick={() => handleDeactivateBook(book)}
-                              title="Deactivate this book"
+                              title={t('userProfile.deactivateTitle')}
                             >
-                              Deactivate
+                              {t('userProfile.deactivate')}
                             </button>
                           )
                         ) : (
