@@ -1,4 +1,33 @@
+# Local setup without docker is described in the individual project READMEs.
+<b>frontend: </b>
+
+```nmp install```
+
+```npm start```
+
+<b>Backend:</b>
+
+```.\gradlew.bat build```
+
+Add db user and password and database name in the config.
+
+For the first run - set this option to true to make a user created and active:
+```app.user.active-on-registration=${APP_USER_ACTIVE_ON_REGISTRATION:true}```
+
+start the backend: 
+```.\gradlew.bat bootRun```
+
+<b>Postgress:</b>
+
+install postgress db locally, set user and password.
+
+Run init scipt to create all necessary tables - BorrowABook/src/main/resources/data.sql
+
+
+
 # BorrowABook Docker Setup
+
+### Never tested with docker!
 
 This repository now has a containerized setup for:
 - Backend: Spring Boot (`BorrowABook`)
