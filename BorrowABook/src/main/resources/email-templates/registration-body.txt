@@ -1,0 +1,12 @@
+Hello {{name}} {{surname}},
+
+Your BorrowABook account has been created.
+
+Login: {{login}}
+Password: {{password}}
+
+You can sign in using your email {{email}} or login name.
+
+Best regards,
+BorrowABook team
+

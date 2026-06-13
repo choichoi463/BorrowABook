@@ -1,0 +1,72 @@
+.admin-user-profile-container {
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.admin-user-profile-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.admin-users-link {
+  text-decoration: none;
+  color: #3498db;
+  font-weight: 600;
+}
+
+.admin-users-link:hover {
+  color: #2980b9;
+}
+
+.admin-user-profile-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+}
+
+.admin-user-profile-card h1 {
+  margin: 0 0 18px;
+  color: #2c3e50;
+  font-size: 28px;
+}
+
+.admin-user-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.admin-user-item {
+  background: #f8f9fa;
+  border: 1px solid #ecf0f1;
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-user-item .label {
+  font-size: 12px;
+  color: #7f8c8d;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.admin-user-item .value {
+  font-size: 16px;
+  color: #2c3e50;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 768px) {
+  .admin-user-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

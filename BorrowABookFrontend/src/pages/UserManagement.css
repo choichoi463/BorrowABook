@@ -1,0 +1,238 @@
+.user-management-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.user-management-container h1 {
+  font-size: 32px;
+  color: #2c3e50;
+  margin-bottom: 24px;
+}
+
+.um-toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.um-search {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  border: 1px solid #bdc3c7;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.um-search:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.um-filter {
+  padding: 8px 12px;
+  border: 1px solid #bdc3c7;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
+.btn-refresh {
+  padding: 8px 16px;
+  background-color: #ecf0f1;
+  border: 1px solid #bdc3c7;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.btn-refresh:hover {
+  background-color: #d5dbdb;
+}
+
+.um-count {
+  font-size: 13px;
+  color: #7f8c8d;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.um-pending-badge {
+  display: inline-block;
+  background-color: #f39c12;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.um-error {
+  color: #e74c3c;
+  margin-bottom: 16px;
+}
+
+.um-loading {
+  color: #7f8c8d;
+  padding: 20px;
+  text-align: center;
+}
+
+.um-table-container {
+  overflow-x: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.um-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.um-table thead {
+  background-color: #f8f9fa;
+}
+
+.um-table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: #2c3e50;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  border-bottom: 2px solid #ecf0f1;
+  white-space: nowrap;
+}
+
+.um-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #ecf0f1;
+  font-size: 13px;
+  color: #555;
+}
+
+.um-table tr:last-child td {
+  border-bottom: none;
+}
+
+.um-row-inactive {
+  background-color: #fdf6e3;
+}
+
+.um-row-inactive td {
+  color: #888;
+}
+
+.um-id {
+  color: #95a5a6;
+  font-size: 12px;
+}
+
+.um-name {
+  font-weight: 600;
+  color: #2c3e50 !important;
+}
+
+/* Role badges */
+.um-role {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.um-role-admin {
+  background-color: #e8daef;
+  color: #6c3483;
+}
+
+.um-role-localAdmin {
+  background-color: #d6eaf8;
+  color: #1a5276;
+}
+
+.um-role-bookOwner {
+  background-color: #d5f5e3;
+  color: #1e8449;
+}
+
+/* Status badges */
+.um-status {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.um-status-active {
+  background-color: #d5f5e3;
+  color: #1e8449;
+}
+
+.um-status-inactive {
+  background-color: #fef9e7;
+  color: #b7950b;
+  border: 1px solid #f9e79f;
+}
+
+/* Action buttons */
+.btn-um {
+  padding: 5px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.btn-um-activate {
+  background-color: #27ae60;
+  color: white;
+}
+
+.btn-um-activate:hover {
+  background-color: #229954;
+}
+
+.btn-um-deactivate {
+  background-color: #f39c12;
+  color: white;
+}
+
+.btn-um-deactivate:hover {
+  background-color: #d68910;
+}
+
+@media (max-width: 768px) {
+  .um-toolbar {
+    flex-direction: column;
+  }
+
+  .um-search {
+    width: 100%;
+  }
+
+  .um-table th,
+  .um-table td {
+    padding: 8px 8px;
+    font-size: 12px;
+  }
+}
+

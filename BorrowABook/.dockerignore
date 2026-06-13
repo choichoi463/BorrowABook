@@ -1,0 +1,11 @@
+build/
+.gradle/
+out/
+bin/
+*.iml
+.idea/
+.git/
+.gitignore
+Dockerfile
+README.md
+
